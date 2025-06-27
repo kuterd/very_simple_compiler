@@ -868,7 +868,6 @@ slot_t left_shift_slots(slot_t a, slot_t b) {
 
 #define MAX_PRECEDENCE 5
 
-#define IS_OPERATOR_CONTINUATION(c) ((c) == '<' || (c) == '>' || (c) == '=')
 
 bin_operator_t bin_operators[] = {
     {.op_string="*", .precedence=4, .compile_op=mul_slots},
@@ -912,9 +911,10 @@ slot_t compile_expression_(char **current, int precedence) {
         // Go over each operator and check if the current operator
         for (size_t i = 0; i < sizeof(bin_operators) / sizeof(bin_operator_t); i++) {
             bin_operator_t *operator = &bin_operators[i];
-            if (operator->op_string[0] != op || (IS_OPERATOR_CONTINUATION(nOP) && operator->op_string[1] != nOP))
+            if (operator->op_string[0] != op)
                 continue;
-
+            if (operator->op_string[1] != 0 && operator->op_string[1] != nOP)
+                continue;
             // Operator found, check precedence.
             if (operator->precedence != precedence)
                 break;
